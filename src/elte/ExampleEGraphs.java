@@ -5,8 +5,12 @@
  */
 package elte;
 
+import egraph.Eedge;
+import egraph.Eflow;
 import org.graphstream.graph.*;
 import egraph.Egraph;
+import egraph.Enode;
+import java.util.ArrayList;
 
 /**
  *
@@ -120,6 +124,65 @@ public class ExampleEGraphs {
         
         return G;
     }
+    
+    //András példa gráf
+    public static Egraph getG6(){
+        Egraph G = new Egraph();
+        
+        G.addNode("s1");
+        G.addNode("t1");
+        G.addNode("s2");
+        G.addNode("t2");
+        G.addNode("a");
+        G.addNode("b");
+        G.addNode("c");
+        G.addNode("d");
+        G.addNode("e");
+        
+        G.addEdge("s1", "a", 1, 0);
+        G.addEdge("s1", "b", 24, 11);
+        G.addEdge("a", "d", 9, 0);
+        G.addEdge("d", "t2", 5, 5);
+        G.addEdge("b", "d", 8, 3+5);
+        G.addEdge("d", "t1", 3, 3);
+        G.addEdge("s2", "c", 6, 6);
+        G.addEdge("c", "b", 6, 5);
+        G.addEdge("c", "e", 1, 1);
+        G.addEdge("b", "e", 8, 8);
+        G.addEdge("e", "t1", 9, 8+1);
+        G.addEdge("t1", "t2", 7, 1);
+        
+        return G;
+    }
+    
+    public static ArrayList<Eflow> getG6flows(){
+        ArrayList<Eflow> eflows = new ArrayList<Eflow>();
+        
+        Eflow eflow1 = new Eflow();
+        eflow1.addEdge(new Eedge(new Enode("s1"), new Enode("b"), 11));
+        eflow1.addEdge(new Eedge(new Enode("b"), new Enode("d"), 3));
+        eflow1.addEdge(new Eedge(new Enode("b"), new Enode("e"), 8));
+        eflow1.addEdge(new Eedge(new Enode("d"), new Enode("t1"), 3));
+        eflow1.addEdge(new Eedge(new Enode("e"), new Enode("t1"), 8));
+        
+        eflows.add(eflow1);
+        
+        Eflow eflow2 = new Eflow();
+        eflow2.addEdge(new Eedge(new Enode("s2"), new Enode("c"), 6));
+        eflow2.addEdge(new Eedge(new Enode("c"), new Enode("b"), 5));
+        eflow2.addEdge(new Eedge(new Enode("c"), new Enode("e"), 1));
+        eflow2.addEdge(new Eedge(new Enode("b"), new Enode("d"), 5));
+        eflow2.addEdge(new Eedge(new Enode("e"), new Enode("t1"), 1));
+        eflow2.addEdge(new Eedge(new Enode("d"), new Enode("t2"), 5));
+        eflow2.addEdge(new Eedge(new Enode("t1"), new Enode("t2"), 1));
+        
+        eflows.add(eflow2);
+        
+        
+        
+        return eflows;
+    }
+    
     
     
 }

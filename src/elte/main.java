@@ -8,6 +8,7 @@ package elte;
 
 import java.util.StringTokenizer;
 import egraph.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,8 +26,14 @@ public class main {
      */
     public static void main(String[] args) {
         
-        Egraph G = ExampleEGraphs.getG4();
+        Egraph G = ExampleEGraphs.getG6();
         
+        ArrayList<Eflow> flows = ExampleEGraphs.getG6flows();
+        
+        Algorithm.a1(G, flows);
+        
+       // System.out.println("c is free");
+       // System.out.println(G.getIsCycleFreeC());
         
         G.displayGraph();
         

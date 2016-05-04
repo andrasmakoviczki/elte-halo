@@ -5,10 +5,12 @@
  */
 package egraph;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 
@@ -20,10 +22,12 @@ public class Egraph {
     
     private HashMap<String, Eedge> edges;
     private HashMap<String, Enode> nodes;
+    private ArrayList<Eflow> flows;
     
     public Egraph(){
 	edges = new HashMap<String, Eedge>();
 	nodes = new HashMap<String, Enode>();
+	flows = new ArrayList<Eflow>();
     }
     
     public void displayGraph(){
@@ -33,6 +37,8 @@ public class Egraph {
         Iterator it = null;
         Enode n = null, n1 = null, n2 = null;
         Eedge e = null;
+        Edge gEdge = null;
+        Eflow eFlow = null;
         
         
         it = this.nodes.entrySet().iterator();
@@ -48,8 +54,21 @@ public class Egraph {
             e = (Eedge)  pair.getValue();
             n1 =  e.getNode1();
             n2 =  e.getNode2();
-            graph.addEdge(e.getId(), n1.getName(), n2.getName()).addAttribute("ui.label", e.getFlow()+"/"+e.getCapacity());
+            graph.addEdge(e.getId(), n1.getName(), n2.getName(), true).addAttribute("ui.label", e.getFlow());
         }
+        
+        for (int i = 0; i < this.flows.size(); i++) {
+            eFlow = this.flows.get(i);
+            //System.out.println("FOLYAM"+i+" ---------");
+            for(int j = 0; j < eFlow.getEdges().size(); j++){
+                e = eFlow.getEdges().get(j);
+                //System.out.println(e.getId());
+                gEdge = graph.getEdge(e.getId());   
+                //gEdge.setAttribute("ui.fillcolor", Color.RED);
+            }
+        }
+
+        
         
         graph.display();
         
@@ -167,6 +186,115 @@ public class Egraph {
         return true;
     }
     
+    /**
+     * C halmaz lekérdezése
+     * @return 
+     */
+    public HashMap<String, Eedge> getC(){
+        HashMap<String, Eedge> hm = new HashMap<String, Eedge>();
+        
+        Iterator it = this.edges.entrySet().iterator();
+        Eedge e = null;
+        
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            e = (Eedge) pair.getValue();
+            if(e.getFlow() > 0){
+                hm.put((String) pair.getKey(), e);
+            }
+        }
+        
+        return hm;
+    }
+    
+    /**
+     * C halmaz-ban van-e kör
+     * @return 
+     */
+    public boolean getIsCycleFreeC(){
+        boolean cIsFree = true;
+        
+        HashMap<String, Boolean> inEdges = new HashMap<String, Boolean>();
+        Iterator it = this.getC().entrySet().iterator();
+        Eedge e = null;
+        Enode n1, n2;
+        HashMap<String, Eedge> en = null;
+        
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            e = (Eedge) pair.getValue();
+            n1 = (Enode) e.getNode1();
+            n2 = (Enode) e.getNode2();
+            
+            if(inEdges.containsKey(n2.getName())){
+                cIsFree = false;
+            }
+            en = n2.getOutEdges();
+            
+            if(en.size() > 0){
+                inEdges.put(n1.getName(), true);
+            }
+        }
+        
+        return cIsFree;
+    }
+    
+    private void set0FlowsToEdges(){
+        Iterator it = this.edges.entrySet().iterator();
+        Eedge e = null;
+        
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            e = (Eedge) pair.getValue();
+            e.setFlow(0);
+        }
+    }
+    
+    
+    public void setFlows(ArrayList<Eflow> flows){
+        this.flows = flows;
+        this.set0FlowsToEdges(); // lenullázzuk az összes élen végigmenő folyamot
+        Eflow f = null;
+        Eedge e = null;
+        Eedge te = null;
+        ArrayList<Eedge> edges = null;
+        
+        for (int i = 0; i < flows.size(); i++) {
+            f = flows.get(i);
+            edges = f.getEdges();
+            for(int j = 0; j < edges.size(); j++){
+                e = edges.get(j);
+                te = this.edges.get(e.getId());
+                te.setFlow(te.getFlow()+e.getCapacity());
+            }
+        }
+    }
+    
+    /**
+     * Visszaad egy slack nélküli élt
+     * FIXME: nem jó még
+     * @return 
+     */
+    public Eedge getWithoutSlackEdge(){
+        Eedge ews = null;
+        
+        Iterator it = this.edges.entrySet().iterator();
+        Eedge e = null;
+        
+        while (it.hasNext() && ews == null) {
+            Map.Entry pair = (Map.Entry)it.next();
+            e = (Eedge) pair.getValue();
+            
+            if(e.getFlow() == 0.0){
+                ews = e;
+            }
+        }
+        
+        
+        return ews;
+    }
+    
+    
     protected String styleSheet =
             "node {" +
             "	text-size: 25px;" +
@@ -176,3 +304,4 @@ public class Egraph {
             "	fill-color: red;" +
             "}";
 }
+

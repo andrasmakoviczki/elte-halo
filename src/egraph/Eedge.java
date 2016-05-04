@@ -76,4 +76,8 @@ public class Eedge {
         this.node2 = node2;
     }
     
+    public String toString(){
+        return this.id;
+    }
+    
 }
