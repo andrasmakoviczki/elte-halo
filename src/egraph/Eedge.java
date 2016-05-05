@@ -59,6 +59,16 @@ public class Eedge {
         this.flow = flow;
     }
     
+    // folyam csökkentése értékkel
+    public void decFlow(double flow) {
+        this.flow -= flow;
+    }
+    
+    // folyam növelése értékkel
+    public void incFlow(double flow) {
+        this.flow -= flow;
+    }
+    
     public Enode getNode1() {
         return node1;
     }
@@ -78,6 +88,18 @@ public class Eedge {
     
     public String toString(){
         return this.id;
+    }
+    
+    /**
+     * Slack-elt él azt jelenti, hogy a kapacitás nincs teljesen kihasználva
+     * @return boolean
+     */
+    public boolean isSlack(){
+        return this.getSlack() > 0.0;
+    }
+    
+    public double getSlack(){
+        return this.capacity - this.flow;
     }
     
 }

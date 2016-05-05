@@ -23,11 +23,28 @@ public class Egraph {
     private HashMap<String, Eedge> edges;
     private HashMap<String, Enode> nodes;
     private ArrayList<Eflow> flows;
+    private ArrayList<Ecommodity> commodities;
     
     public Egraph(){
 	edges = new HashMap<String, Eedge>();
 	nodes = new HashMap<String, Enode>();
 	flows = new ArrayList<Eflow>();
+    }
+
+    public HashMap<String, Eedge> getEdges() {
+        return edges;
+    }
+
+    public void setEdges(HashMap<String, Eedge> edges) {
+        this.edges = edges;
+    }
+
+    public HashMap<String, Enode> getNodes() {
+        return nodes;
+    }
+
+    public void setNodes(HashMap<String, Enode> nodes) {
+        this.nodes = nodes;
     }
     
     public void displayGraph(){
@@ -270,9 +287,12 @@ public class Egraph {
         }
     }
     
+    public void setCommodities(ArrayList<Ecommodity> commodities){
+        this.commodities = commodities;
+    }
+    
     /**
      * Visszaad egy slack nélküli élt
-     * FIXME: nem jó még
      * @return 
      */
     public Eedge getWithoutSlackEdge(){
@@ -285,13 +305,35 @@ public class Egraph {
             Map.Entry pair = (Map.Entry)it.next();
             e = (Eedge) pair.getValue();
             
-            if(e.getFlow() == 0.0){
+            if(e.getFlow() > 0 && e.getFlow() == e.getCapacity()){
                 ews = e;
             }
         }
         
         
         return ews;
+    }
+    
+    /**
+     * Visszaadja a slack nélküli éleket
+     * @return 
+     */
+    public ArrayList<Eedge> getWithoutSlackEdges(){
+        ArrayList<Eedge> edges = new ArrayList<Eedge>();
+        
+        Iterator it = this.edges.entrySet().iterator();
+        Eedge e = null;
+        
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            e = (Eedge) pair.getValue();
+            
+            if(e.getFlow() > 0 && e.getFlow() == e.getCapacity()){
+                edges.add(e);
+            }
+        }
+        
+        return edges;
     }
     
     

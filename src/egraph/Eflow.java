@@ -26,4 +26,8 @@ public class Eflow {
         this.edges.add(edge);
     }
     
+    public String toString(){
+        return ""+this.edges.size();
+    }
+    
 }

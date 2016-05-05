@@ -5,6 +5,7 @@
  */
 package elte;
 
+import egraph.Ecommodity;
 import egraph.Eedge;
 import egraph.Eflow;
 import org.graphstream.graph.*;
@@ -181,6 +182,15 @@ public class ExampleEGraphs {
         
         
         return eflows;
+    }
+    
+    public static ArrayList<Ecommodity> getG6commodities(){
+        ArrayList<Ecommodity> ecommodities = new ArrayList<Ecommodity>();
+        
+        ecommodities.add(new Ecommodity(new Enode("s1"), new Enode("t1"), 11.0));
+        ecommodities.add(new Ecommodity(new Enode("s2"), new Enode("t2"), 6.0));
+        
+        return ecommodities;
     }
     
     

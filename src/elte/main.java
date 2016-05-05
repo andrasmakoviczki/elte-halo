@@ -29,8 +29,9 @@ public class main {
         Egraph G = ExampleEGraphs.getG6();
         
         ArrayList<Eflow> flows = ExampleEGraphs.getG6flows();
+        ArrayList<Ecommodity> commodities = ExampleEGraphs.getG6commodities();
         
-        Algorithm.a1(G, flows);
+        Algorithm.a1(G, commodities, flows);
         
        // System.out.println("c is free");
        // System.out.println(G.getIsCycleFreeC());
