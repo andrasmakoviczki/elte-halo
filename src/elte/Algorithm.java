@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package elte;
 
 import egraph.*;
@@ -13,10 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
-/**
- *
- * @author pcgejza
- */
+
 public class Algorithm {
     
     public static Eflow a1(Egraph graph,  ArrayList<Ecommodity> commodities, ArrayList<Eflow> flows){
@@ -187,12 +180,14 @@ public class Algorithm {
         //az E s halmaz azokat az éleket tartalmazza, melyek a b. feltétellel ki lettek választva
         ArrayList eS = new ArrayList();
         
-        for(int i = 0; i < temp.size(); i++){
-            if(temp.get(i).getFlow() > 0.0){
-                eK.add(temp.get(i));
+        for (Entry<String,Eedge> entry : temp.entrySet()) {
+            Eedge teedge = (Eedge) entry.getValue();
+            
+            if(teedge.getFlow() > 0.0){
+                eK.add(teedge);
             }
-            if(temp.get(i).isSlack()){
-                eS.add(temp.get(i));
+            if(teedge.isSlack()){
+                eS.add(teedge);
             }
         }
         
