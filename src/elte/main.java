@@ -28,8 +28,6 @@ public class main {
       
         Egraph g2 = Algorithm.a1(G, commodities, flows);
         
-       // System.out.println("c is free");
-       // System.out.println(G.getIsCycleFreeC());
         G.setFlows(flows);
         G.displayGraph();
         g2.displayGraph();
