@@ -19,17 +19,20 @@ public class main {
      */
     public static void main(String[] args) {
         
-        Egraph G = ExampleEGraphs.getG6();
+        Egraph G = ExampleEGraphs.getG8();
         
-        ArrayList<Eflow> flows = ExampleEGraphs.getG6flows();
-        ArrayList<Ecommodity> commodities = ExampleEGraphs.getG6commodities();
+        ArrayList<Eflow> flows = ExampleEGraphs.getG8flows();
+        ArrayList<Ecommodity> commodities = ExampleEGraphs.getG8commodities();
         
-        Algorithm.a1(G, commodities, flows);
+        //G.displayGraph();
+      
+        Egraph g2 = Algorithm.a1(G, commodities, flows);
         
        // System.out.println("c is free");
        // System.out.println(G.getIsCycleFreeC());
-        
+        G.setFlows(flows);
         G.displayGraph();
+        g2.displayGraph();
       
     }
     

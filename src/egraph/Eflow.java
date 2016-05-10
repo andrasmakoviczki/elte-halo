@@ -30,4 +30,8 @@ public class Eflow {
         return ""+this.edges.size();
     }
     
+    public Enode getStartNode(){
+        return this.edges.get(0).getNode1();
+    }
+    
 }

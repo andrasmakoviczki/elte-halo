@@ -1,17 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package egraph;
 
 import com.sun.javafx.geom.Edge;
 import java.util.HashMap;
 
-/**
- *
- * @author pcgejza
- */
 public class Eedge {
     
     private String id;
@@ -29,18 +21,22 @@ public class Eedge {
     private double flow = 0.0;
     
     public Eedge(Enode node1, Enode node2, double capacity){
-        this.id = node1.getName()+"_"+node2.getName();
         this.node1 = node1;
         this.node2 = node2;
         this.capacity = capacity;
+        this.setIdAutomatic();
     }
     
     public Eedge(Enode node1, Enode node2, double capacity, double flow){
-        this.id = node1.getName()+"_"+node2.getName();
         this.node1 = node1;
         this.node2 = node2;
         this.capacity = capacity;
         this.flow = flow;
+        this.setIdAutomatic();
+    }
+    
+    public void setIdAutomatic(){
+        this.id = this.node1.getName()+"_"+this.node2.getName();
     }
 
     public double getCapacity() {
@@ -66,7 +62,7 @@ public class Eedge {
     
     // folyam növelése értékkel
     public void incFlow(double flow) {
-        this.flow -= flow;
+        this.flow += flow;
     }
     
     public Enode getNode1() {
@@ -100,6 +96,14 @@ public class Eedge {
     
     public double getSlack(){
         return this.capacity - this.flow;
+    }
+    
+    public void reverseNodes(){
+        Enode n1 = this.node1;
+        this.node1 = this.node2;
+        this.node2 = n1;
+        this.setIdAutomatic();
+        return;
     }
     
 }

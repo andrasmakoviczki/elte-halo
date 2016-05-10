@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package egraph;
 
 import java.awt.Color;
@@ -13,11 +9,8 @@ import java.util.Map;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.view.Viewer;
 
-/**
- *
- * @author pcgejza
- */
 public class Egraph {
     
     private HashMap<String, Eedge> edges;
@@ -45,6 +38,10 @@ public class Egraph {
 
     public void setNodes(HashMap<String, Enode> nodes) {
         this.nodes = nodes;
+    }
+    
+    public ArrayList<Eflow> getFlows(){
+        return this.flows;
     }
     
     public void displayGraph(){
@@ -79,15 +76,18 @@ public class Egraph {
             //System.out.println("FOLYAM"+i+" ---------");
             for(int j = 0; j < eFlow.getEdges().size(); j++){
                 e = eFlow.getEdges().get(j);
-                //System.out.println(e.getId());
-                gEdge = graph.getEdge(e.getId());   
-                //gEdge.setAttribute("ui.fillcolor", Color.RED);
+                gEdge = graph.getEdge(e.getId());  
+                //gEdge.setAttribute("ui.label", gEdge.getAttribute('ui.label')+","+ "");
+                if(gEdge != null)
+                   gEdge.addAttribute("ui.style", "fill-color: rgb(255,0,0); size : 3px;");
             }
         }
 
         
         
-        graph.display();
+        Viewer viewer = graph.display();
+        
+        
         
     }
 
@@ -291,6 +291,11 @@ public class Egraph {
         this.commodities = commodities;
     }
     
+    public ArrayList<Ecommodity> getCommodities(){
+        return this.commodities;
+    }
+    
+    
     /**
      * Visszaad egy slack nélküli élt
      * @return 
@@ -345,5 +350,39 @@ public class Egraph {
             "node.marked {" +
             "	fill-color: red;" +
             "}";
+    
+    public Egraph(Egraph gcopy){
+	edges = new HashMap<String, Eedge>();
+	nodes = new HashMap<String, Enode>();
+	flows = new ArrayList<Eflow>();
+	commodities = new ArrayList<Ecommodity>();
+        
+        
+        for (Map.Entry<String,Enode> entry : gcopy.getNodes().entrySet()) {
+            Enode entryNode = entry.getValue();
+            this.addNode(entryNode.getName());
+        }
+        
+        for (Map.Entry<String,Eedge> entry : gcopy.getEdges().entrySet()) {
+            Eedge entryEdge = entry.getValue();
+            this.addEdge(entryEdge.getNode1().getName(), entryEdge.getNode2().getName(),  entryEdge.getCapacity(),   entryEdge.getFlow());
+        }
+    }
+    
+    public void resetNodeOutEdges(){
+        for (Map.Entry<String,Enode> entry : this.getNodes().entrySet()) {
+            Enode entryNode = entry.getValue();
+            entryNode.setOutEdges(new HashMap<String, Eedge>());
+            
+            for (Map.Entry<String,Eedge> entry2 : this.getEdges().entrySet()) {
+                Eedge entryEdge = entry2.getValue();
+                if(entryEdge.getNode1().getName() == entryNode.getName()){
+                    entryNode.addOutEdge(entryEdge.getId(), entryEdge);
+                }
+            }
+        }
+    }
+    
+            
 }
 

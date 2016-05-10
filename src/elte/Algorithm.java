@@ -12,26 +12,23 @@ import java.util.Random;
 
 public class Algorithm {
     
-    public static Eflow a1(Egraph graph,  ArrayList<Ecommodity> commodities, ArrayList<Eflow> flows){
+    public static Egraph a1(Egraph graph,  ArrayList<Ecommodity> commodities, ArrayList<Eflow> flows){
         Eflow f = new Eflow();
-        graph.setFlows(flows);
-        graph.setCommodities(commodities);
-        
+        Egraph graph2 = new Egraph(graph);
+        ArrayList<Boolean> edgesIsSlack = new ArrayList<Boolean>();
+        graph2.setFlows(flows);
+        graph2.setCommodities(commodities);
         Eedge edgeWithoutSlack = null;
         Eflow currentFlow = null;
         double sStar = 0.0;
         boolean uIsAffected; // az u csúcs érintve lett-e
-        Enode   v = null,
+        Enode   v = null, sNode = null, 
                 vComma = null, vCommaComma = null;
         
-        
-        
-        
-        
         // 1. vegyünk egy slack nélküli élt (gyakorlatilag az összes ilyenen végig kell iterálni)
-        for(int iWSlack = 0; iWSlack<graph.getWithoutSlackEdges().size(); iWSlack++){
+        for(int iWSlack = 0; iWSlack<graph2.getWithoutSlackEdges().size(); iWSlack++){
             System.out.println("------------------");
-            edgeWithoutSlack = graph.getWithoutSlackEdges().get(iWSlack);
+            edgeWithoutSlack = graph2.getWithoutSlackEdges().get(iWSlack);
             System.out.println("Current edge without slack = "+edgeWithoutSlack.toString());
             
             ArrayList fwEdges = getFlowSWithEdge(flows, edgeWithoutSlack);
@@ -41,6 +38,7 @@ public class Algorithm {
                 currentFlow = getFlowWithEdge(flows, edgeWithoutSlack);
                 System.out.println("Current flow = "+currentFlow.toString());
                 
+                Egraph graph3 = new Egraph(graph2);
                 
                 sStar = getSstar(graph, currentFlow);
 
@@ -48,39 +46,51 @@ public class Algorithm {
                 System.out.println("Current sStar = "+sStar);
                 
                 //3. A végpontból kimenő e 1 él, v csúcsa egy szélességi keresést végez
-                v = edgeWithoutSlack.getNode2();
-                ArrayList szk = breadthTree(graph, v);
+                graph3 = reversalEdgesEflow(graph3, currentFlow);
+                v = graph3.getNode(edgeWithoutSlack.getNode1().getName());
+          
+                ArrayList szk = breadthTree(graph3, v);
                 uIsAffected = (boolean) szk.get(0);
                 ArrayList eK = (ArrayList) szk.get(1);
                 ArrayList eS = (ArrayList) szk.get(2);
                 
-
+                System.out.println("uIsAffected = "+uIsAffected);
+                
                 //4. Ha a szélességi keresés a 3. lépésben érintette az u csúcsot
                 if(uIsAffected == true){
-                    System.out.println("ÉRINTETTE");
-                    
-                    /**
-                     * Minden élre az E k -ban és e 1 -hez csökkentjük a folyam K commodity-jét s ∗ -gal, és minden
-                        élre az E s -ben növeljük a folyam K commodity-jét s ∗ -gal. Ha kör keletkezik a
-                        mellékfolyamokban, azt eltávolítjuk.
-                     */
+                    //Minden élre az E k -ban és e 1 -hez csökkentjük a folyam K commodity-jét s ∗ -gal, és minden
+                    //    élre az E s -ben növeljük a folyam K commodity-jét s ∗ -gal. Ha kör keletkezik a
+                    //    mellékfolyamokban, azt eltávolítjuk.
                     for(int iEk = 0; iEk < eK.size(); iEk++){
                         Eedge EkEdge = (Eedge) eK.get(iEk);
-                        Eedge graphEkEdge = graph.getEdges().get(EkEdge.getId());
-                        graphEkEdge.decFlow(sStar);
+                        Eedge graphEkEdge = graph3.getEdges().get(EkEdge.getId());
+                        //graphEkEdge.decFlow(sStar);
                     }
                     for(int iEs = 0; iEs < eS.size(); iEs++){
                         Eedge EsEdge = (Eedge) eS.get(iEs);
-                        Eedge graphEkEdge = graph.getEdges().get(EsEdge.getId());
-                        graphEkEdge.incFlow(sStar);
+                        Eedge graphEkEdge = graph3.getEdges().get(EsEdge.getId());
+                        //graphEkEdge.incFlow(sStar);
                     }
+                    
+                    edgesIsSlack.add(true);
+                }else{
+                    edgesIsSlack.add(false);
                 }
-                
             }
             
         }
         
-        return f;
+        
+        boolean algorithmResult = true;
+        for(int i=0; i<edgesIsSlack.size(); i++){
+            if(edgesIsSlack.get(i) == false){
+                algorithmResult = false;
+            }
+        }
+        
+        System.out.println("*************** ALGORITHM RESULT : "+algorithmResult);
+        
+        return graph2;
     }
     
     // szélességi keresés gyökere
@@ -135,10 +145,22 @@ public class Algorithm {
         Eedge thisEdge = null;
         
         // megkeressük a minimális slack-et
+        /*
         for(int i = 0; i < flow.getEdges().size(); i++){
             thisEdge = graph.getEdges().get(flow.getEdges().get(i).getId());
             if(thisEdge.isSlack()){
                     System.out.println(thisEdge.getId()+" , "+thisEdge.getSlack());
+                if(thisEdge.getSlack() < minSlack || minSlack == 0.0){
+                    minSlack = thisEdge.getSlack();
+                }
+            }
+        }
+        */
+        Iterator it = graph.getEdges().entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            thisEdge = (Eedge)  pair.getValue();
+            if(thisEdge.isSlack()){
                 if(thisEdge.getSlack() < minSlack || minSlack == 0.0){
                     minSlack = thisEdge.getSlack();
                 }
@@ -166,7 +188,7 @@ public class Algorithm {
         HashMap<String,Eedge> temp = new HashMap<String, Eedge>();
         temp.putAll(edges);
         
-        temp = iterateNodes(edges, new HashMap<String, Eedge>());
+        temp = iterateNodes(edges, new HashMap<String, Eedge>(), new HashMap<String, Integer>(), g.getNodes().size());
         
         // a szélességi érintette-e a csúcsot
         boolean nExistIn = nodeExistsOnList(n, temp);
@@ -199,7 +221,7 @@ public class Algorithm {
     }
     
     // szélességi fa bejárás
-    private static HashMap<String, Eedge> iterateNodes(HashMap<String, Eedge> edges, HashMap<String, Eedge> traveledEdges){
+    private static HashMap<String, Eedge> iterateNodes(HashMap<String, Eedge> edges, HashMap<String, Eedge> traveledEdges, HashMap<String, Integer> traveledNodesCount, int nodesCount){
         Enode vComma = null, vCommaComma = null;
         Eedge thisEdge = null;
         HashMap<String, Eedge> edgesGy = new HashMap<String, Eedge>();
@@ -207,20 +229,41 @@ public class Algorithm {
         for (Entry<String,Eedge> entry : edges.entrySet()) {
             thisEdge = (Eedge) entry.getValue();
             if(thisEdge.isSlack() || thisEdge.getFlow() > 0.0){ // az él slack-el kell legyen
+                
                 vComma = thisEdge.getNode1();
                 vCommaComma = thisEdge.getNode2();
                 
-                traveledEdges.put(thisEdge.getId(), thisEdge);
-                if(vCommaComma.getOutEdges().size() > 0){
-                    for (Entry<String,Eedge> entry2 : vCommaComma.getOutEdges().entrySet()) {
-                        edgesGy.put(entry2.getKey(), entry2.getValue());
+                if(traveledNodesCount.get(thisEdge.getNode2().getName()) == null){
+                    traveledNodesCount.put(thisEdge.getNode2().getName(), 1);
+                }else{
+                    traveledNodesCount.put(thisEdge.getNode2().getName(), traveledNodesCount.get(thisEdge.getNode2().getName()) + 1);
+                }
+                //System.out.println(" >> "+thisEdge.getId());
+                
+                if(traveledNodesCount.get(thisEdge.getNode2().getName()) < nodesCount){ // -> KÖR
+                    traveledEdges.put(thisEdge.getId(), thisEdge);
+                    
+                    if(vCommaComma.getOutEdges().size() > 0){
+                        for (Entry<String,Eedge> entry2 : vCommaComma.getOutEdges().entrySet()) {
+                            Eedge entry2Edge = entry2.getValue();
+                            
+                            if(traveledNodesCount.get(entry2Edge.getNode2().getName()) == null){
+                                traveledNodesCount.put(entry2Edge.getNode2().getName(), 1);
+                            }else{
+                                traveledNodesCount.put(entry2Edge.getNode2().getName(), traveledNodesCount.get(entry2Edge.getNode2().getName()) + 1);
+                            }
+                            
+                            if(traveledNodesCount.get(entry2Edge.getNode2().getName()) < nodesCount){ // -> KÖR
+                                edgesGy.put(entry2.getKey(), entry2.getValue());
+                            }
+                        }
                     }
                 }
             }
         }
         
         if(edgesGy.size() > 0){
-            iterateNodes(edgesGy, traveledEdges);
+            iterateNodes(edgesGy, traveledEdges, traveledNodesCount, nodesCount);
         }
         
         return traveledEdges;
@@ -238,6 +281,40 @@ public class Algorithm {
             }
         }
         return isExists;
+    }
+    
+    private static Egraph reversalEdges(Egraph g, ArrayList<Eedge> edges){
+        for(int iEk = 0; iEk < edges.size(); iEk++){
+            Eedge EkEdge = (Eedge) edges.get(iEk);
+            Eedge graphEkEdge = g.getEdges().get(EkEdge.getId());
+            Enode n1 = graphEkEdge.getNode1();
+            Enode n2 = graphEkEdge.getNode2();
+            
+            graphEkEdge.setNode2(n1);
+            graphEkEdge.setNode1(n2);
+            graphEkEdge.setIdAutomatic();
+            
+        }
+        
+        return g;
+    }
+    
+    private static Egraph reversalEdgesEflow(Egraph g, Eflow eflow){
+        
+        for(int iEk = 0; iEk < eflow.getEdges().size(); iEk++){
+            Eedge EkEdge = (Eedge) eflow.getEdges().get(iEk);
+            Eedge graphEkEdge = g.getEdges().get(EkEdge.getId());
+            Enode n1 = graphEkEdge.getNode1();
+            Enode n2 = graphEkEdge.getNode2();
+            
+            graphEkEdge.setNode2(n1);
+            graphEkEdge.setNode1(n2);
+            graphEkEdge.setIdAutomatic();
+        }
+        
+        g.resetNodeOutEdges();
+        
+        return g;
     }
     
 }
