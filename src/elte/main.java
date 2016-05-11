@@ -19,10 +19,10 @@ public class main {
      */
     public static void main(String[] args) {
         
-        Egraph G = ExampleEGraphs.getG7();
+        Egraph G = ExampleEGraphs.getG8();
         
-        ArrayList<Eflow> flows = ExampleEGraphs.getG7flows();
-        ArrayList<Ecommodity> commodities = ExampleEGraphs.getG7commodities();
+        ArrayList<Eflow> flows = ExampleEGraphs.getG8flows();
+        ArrayList<Ecommodity> commodities = ExampleEGraphs.getG8commodities();
         
         //G.displayGraph();
       
