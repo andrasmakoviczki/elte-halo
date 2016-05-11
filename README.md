@@ -6,7 +6,7 @@ Az algoritmus
 Az algoritmus megadja, hogy végrehajtható-e konzisztens migráció egy megadott hálózatban. 
 
 ---------------------------------------
-Futtatási paraméterek
+Futtatási paraméterek:
 Szükséges megadni egy gráfot, valamint egy listát a commodity-król és egy listát a folyamokról. 
 Az ExampleEGraphs osztályban találhatók erre példák, valamint ott lehet további Gráfokat, 
 Commodity-ket, valamint folyamokat létrehozni.
